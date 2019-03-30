@@ -16,7 +16,12 @@
 # 而第i个元素，作为最小值在这些连续数组中出现的次数，就是该元素应该被加的次数。
 # 那么第i个元素作为最小值出现了几次呢？
 # 第i个元素向前的最近的比它小的元素下标记为a，向后的最近的比它小的元素下标记为b
-# 那么作为最小值出现了b-a+1次
+# 那么该元素被加了(right[i]-i)*(i-left[i])次
+# （以第a+1个元素开始的包含第i个元素的连续数组有(right[i]-i)个）
+# 需要注意的是，当一个连续子数组中最小元素不止一个时，那么此时我们始终取左边的元素
+# 这就对应，第一个单调栈不是严格递增的
+# 第二个单调栈是严格递增的
+# 分别对应>和>=
 
 # 问题简化：
 # 找出每个元素，两侧的第一个比它小的值。
@@ -25,35 +30,27 @@
 # 时间复杂度，运算主要是比较运算，从比较结果来对比较运算进行分类，比较结果为大于等于的运算，会导致一个元素入栈，由于一共有n个元素，那么
 # 该类运算最多有n次，比较结果为小于的运算，会导致栈内元素出栈，而最多有n次出栈，故该运算最多有n次，因此时间复杂度为O(n)
 
-class Solution:
-    def sumSubarrayMins(A):
-        my_stack
 
-# typedef long long ll;
-# class Solution {
-#     const int P=1000000007;
-# public:
-#     int sumSubarrayMins(vector<int>& a) {
-#         int n=a.size();
-#         vector<int> l(n,-1),r(n,n),st;
-#         for(int i=0;i<n;i++){
-#             while(!st.empty()&&a[st.back()]>a[i])
-#                 st.pop_back();
-#             if(!st.empty())
-#                 l[i]=st.back();
-#             st.push_back(i);
-#         }
-#         st.clear();
-#         for(int i=n-1;i>=0;i--){
-#             while(!st.empty()&&a[st.back()]>=a[i])st.pop_back();
-#             if(!st.empty())r[i]=st.back();
-#             st.push_back(i);
-#         }
-#         int ans=0;
-#         for(int i=0;i<n;i++){
-#             int d=r[i]-l[i]-1;
-#             ans=(ll(ans)+ll(i-l[i])*ll(r[i]-i)*ll(a[i]))%P;
-#         }
-#         return ans;
-#     }
-# };
+def sumSubarrayMins(A):
+    my_stack = []
+    left = [-1]*len(A)
+    right = [len(A)]*len(A)
+    my_sum = 0
+    for i in range(len(A)):
+        while len(my_stack)!=0 and A[my_stack[-1]] > A[i]:
+            my_stack.pop()
+        if len(my_stack) != 0:
+            left[i] = my_stack[-1]
+        my_stack.append(i)
+    my_stack = []
+    for i in reversed(range(len(A))):
+        while len(my_stack)!=0 and A[my_stack[-1]] >= A[i]:
+            my_stack.pop()
+        if len(my_stack) != 0:
+            right[i] = my_stack[-1]
+        my_stack.append(i)
+    for i in range(len(A)):
+        my_sum = (my_sum + A[i]*(right[i]-i)*(i-left[i])) % 1000000007
+    return my_sum
+
+print(sumSubarrayMins([71,55,82,55]))
